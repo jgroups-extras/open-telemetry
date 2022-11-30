@@ -19,6 +19,8 @@ import org.jgroups.Version;
 import org.jgroups.util.ByteArrayDataOutputStream;
 
 import java.io.DataOutput;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 /**
@@ -51,6 +53,7 @@ public class App {
     protected void start() throws Exception {
 
         Span span = tracer.spanBuilder("parent-span").setSpanKind(SpanKind.CLIENT).startSpan();
+
 
         try (Scope scope = span.makeCurrent()) {
             otel.getPropagators().getTextMapPropagator().inject(Context.current(), output, setter);
@@ -91,7 +94,11 @@ public class App {
             childSpan1.setAttribute("foo", random.nextInt());
             Thread.sleep(500);
             childSpan1.setStatus(StatusCode.OK);
-            otel.getPropagators().getTextMapPropagator().inject(Context.current(), output, setter);
+
+            Map<String,String> map=getContextMap();
+            System.out.println("map = " + map);
+
+            // otel.getPropagators().getTextMapPropagator().inject(Context.current(), output, setter);
         } finally {
             childSpan1.end();
         }
@@ -104,6 +111,16 @@ public class App {
         } finally {
             childSpan2.end();
         }
+    }
+
+
+    public static Map<String, String> getContextMap() {
+        HashMap<String, String> result = new HashMap<>();
+
+        // Inject the request with the *current* Context, which contains our current Span.
+        W3CTraceContextPropagator.getInstance().inject(Context.current(), result,
+                                                       (carrier, key, value) -> carrier.put(key, value));
+        return result;
     }
 
 

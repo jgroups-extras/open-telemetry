@@ -1,6 +1,6 @@
 package org.jgroups.open_telemetry;
 
-import io.opentelemetry.api.trace.Span;
+import io.opentelemetry.api.trace.SpanContext;
 import org.jgroups.Header;
 import org.jgroups.conf.ClassConfigurator;
 
@@ -15,8 +15,8 @@ import java.util.function.Supplier;
  * @since  1.0.0
  */
 public class TracerHeader extends Header {
-    protected static final short ID=200;
-    protected Span               span;
+    protected static final short ID=1050;
+    protected SpanContext        span;
 
     static {
         ClassConfigurator.add(ID, TracerHeader.class);
@@ -25,12 +25,12 @@ public class TracerHeader extends Header {
     public TracerHeader() {
     }
 
-    public TracerHeader(Span span) {
+    public TracerHeader(SpanContext span) {
         this.span=span;
     }
 
-    public Span         getSpan()       {return span;}
-    public TracerHeader setSpan(Span s) {this.span=s; return this;}
+    public SpanContext  getSpanContext()              {return span;}
+    public TracerHeader setSpanContext(SpanContext s) {this.span=s; return this;}
 
     public short getMagicId() {
         return ID;

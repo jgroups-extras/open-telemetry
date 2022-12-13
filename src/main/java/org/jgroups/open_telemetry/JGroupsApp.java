@@ -1,6 +1,7 @@
 package org.jgroups.open_telemetry;
 
 import io.opentelemetry.api.OpenTelemetry;
+import io.opentelemetry.api.common.AttributeKey;
 import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.api.trace.SpanKind;
 import io.opentelemetry.api.trace.StatusCode;
@@ -65,6 +66,8 @@ public class JGroupsApp {
 
         SdkTracerProvider tracerProvider=builder.build();
 
+        // otel=GlobalOpenTelemetry.get();
+
         otel = OpenTelemetrySdk.builder()
           .setTracerProvider(tracerProvider)
           .setPropagators(ContextPropagators.create(W3CTraceContextPropagator.getInstance()))
@@ -94,6 +97,7 @@ public class JGroupsApp {
 
         try (Scope ignored = span.makeCurrent()) {
             span.addEvent("sending " + num);
+            span.setAttribute(AttributeKey.stringKey("destination"), b_addr.toString());
             TracerHeader hdr=new TracerHeader();
             populateHeader(hdr);
             Message msg=new ObjectMessage(b_addr, num)
@@ -132,7 +136,7 @@ public class JGroupsApp {
         public void receive(Message msg) {
             TracerHeader hdr=msg.getHeader(HDR_ID);
             int num=msg.getObject();
-            System.out.printf("-- received msg %d, ctx: %s\n", num, hdr.getSpanContext());
+            System.out.printf("-- received msg %d, ctx: %s\n", num, hdr);
 
 
             Context extractedContext = otel.getPropagators().getTextMapPropagator()

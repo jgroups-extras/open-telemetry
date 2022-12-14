@@ -18,8 +18,8 @@ import java.util.function.Supplier;
  * @since  1.0.0
  */
 public class TracerHeader extends Header {
-    protected static final short ID=1050;
-    protected Map<String,String> ctx=new HashMap<>();
+    protected static final short       ID=1050;
+    protected final Map<String,String> ctx=new HashMap<>();
 
     static {
         ClassConfigurator.add(ID, TracerHeader.class);
@@ -27,13 +27,6 @@ public class TracerHeader extends Header {
 
     public TracerHeader() {
     }
-
-    public TracerHeader(Map<String,String> ctx) {
-        this.ctx=ctx;
-    }
-
-    public Map<String,String>  getSpanContext()                     {return ctx;}
-    public TracerHeader        setSpanContext(Map<String,String> s) {this.ctx=s; return this;}
 
     public short getMagicId() {
         return ID;
@@ -52,9 +45,8 @@ public class TracerHeader extends Header {
     public Set<String> keys() {return ctx.keySet();}
 
     public int serializedSize() {
-        int size=0;
+        int size=Integer.BYTES;
         int num_attrs=ctx.size();
-        size+=num_attrs;
         if(num_attrs > 0) {
             for(Map.Entry<String,String> entry: ctx.entrySet()) {
                 String key=entry.getKey();
@@ -81,5 +73,9 @@ public class TracerHeader extends Header {
             for(int i=0; i < size; i++)
                 ctx.put(Util.readString(in), Util.readString(in));
         }
+    }
+
+    public String toString() {
+        return ctx.toString();
     }
 }

@@ -136,7 +136,7 @@ public class JGroupsApp {
         public void receive(Message msg) {
             TracerHeader hdr=msg.getHeader(HDR_ID);
             int num=msg.getObject();
-            System.out.printf("-- received msg %d, ctx: %s\n", num, hdr);
+            System.out.printf("-- received request %d, ctx: %s\n", num, hdr);
 
 
             Context extractedContext = otel.getPropagators().getTextMapPropagator()
